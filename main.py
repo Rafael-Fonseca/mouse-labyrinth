@@ -39,8 +39,8 @@ my_maze.wait_donatelo()
 
 don = turtle.Turtle()
 donatelo = Mouse(don, my_maze)
-donatelo.prepare_turtle(3, 'purple', 'turtle')
-donatelo.set_start((-143, 185))
+donatelo.prepare_turtle(3, 'pink', 'turtle')
+donatelo.set_start((-135, 185))
 donatelo.go()
 
 wn.mainloop()

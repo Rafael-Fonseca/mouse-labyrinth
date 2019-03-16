@@ -7,15 +7,15 @@ class Mouse:
         self.old_position = (0, 0)
         self.position = (0, 0)
 
-        self.axis_x = len(maze.vertical)
-        self.axis_y = len(maze.horizontal)
+        #All options of the lab
+        self.axis_x = len(maze.vertical) -1
+        self.axis_y = len(maze.horizontal) - 1
         self.positions_options = {}
-        for column in range(self.axis_y):
+        for column in range(self.axis_y):  # len(horizontal) = 13
             for line in range(self.axis_x):
                 self.positions_options.update({(line, column):
                                                    self.look_arround((line, column))})
 
-        print(self.positions_options)
         self.choice_place = []
         self.direction = 'none'
         self.path = {}
@@ -31,16 +31,29 @@ class Mouse:
         self.donatelo.pendown()
 
     def look_arround(self, position=None):
+        '''
+        This fuction receive one position and return all the options that
+        position, don't matter if is blocked or free.
+        If a position is not received, look_arround treats like you want know
+        the option of actual position.
+
+        :param position:
+        :return:
+        '''
         if position is None:
             position = self.position
 
-        print('position 1: ', position[1], '\nposition 0: ', position[0])
         return [self.maze.horizontal[position[1]][position[0]],
-                self.maze.vertical[position[0]+1][position[1]], # ta tentando acessar positon 6 + 1
+                self.maze.vertical[position[0]+1][position[1]],
                 self.maze.horizontal[position[1]+1][position[0]],
                 self.maze.vertical[position[0]][position[1]]]
 
     def how_many_choices(self):
+        '''
+        This function assists the mouse know how many options it has.
+
+        :return: int(quantity of free spaces that are represented by 0)
+        '''
         choices = 0
         for option in self.positions_options.get(self.position):
             if option == 0:
@@ -52,6 +65,14 @@ class Mouse:
         self.path.update({self.old_position: self.position})
 
     def set_direction(self, new_direction):
+        '''
+        This method prepare the direction where the turtle should move.
+        It considers self variable direction and new direction parameter.
+        Direction starts with value none and is update by this method.
+
+        :param new_direction:
+        :return: None
+        '''
         if self.direction == 'none':
             if new_direction == 'up':
                 self.donatelo.left(90)
@@ -83,9 +104,9 @@ class Mouse:
             if new_direction == 'up':
                 self.donatelo.left(180)
             elif new_direction == 'right':
-                self.donatelo.right(90)
-            elif new_direction == 'left':
                 self.donatelo.left(90)
+            elif new_direction == 'left':
+                self.donatelo.right(90)  # Se vai no sentido horario é right
 
         elif self.direction == 'left':
             if new_direction == 'up':
@@ -95,57 +116,63 @@ class Mouse:
             elif new_direction == 'down':
                 self.donatelo.left(90)
 
+        self.direction = new_direction
+
+    def change_position_options(self, index, new_value):
+        '''
+        This method change the options, that the mouse has.
+
+        :param index: Where you want to put a new_value
+        :param new_value: What you want put in options
+        :return: None
+        '''
+        self.positions_options[self.position].pop(index)
+        self.positions_options[self.position].insert(index, new_value)
+
     def go_direction(self, direction):
+        '''
+        This method use method set_direction to prepare the direction where the
+        turtle should move.
+        Change old_position value to be equals position value.
+        Move the turtle.
+        Change self.positions_options placing a int(4) in the moved direction.
+        Change position according move direction
+
+        :param direction:
+        :return: None
+        '''
         self.set_direction(direction)
+        self.old_position = self.position
         self.donatelo.forward(30)
 
         if direction == 'up':
-            # altera options
-            self.positions_options[self.position] = [
-                4,
-                self.positions_options[self.position][1],
-                self.positions_options[self.position][2],
-                self.positions_options[self.position][3],
-            ]
-            # altera posição
-            self.old_position = self.position
+            self.change_position_options(0, 4)
             self.position = (self.position[0], self.position[1] - 1)
+            self.change_position_options(2, 4)
 
         elif direction == 'right':
-            # altera options
-            self.positions_options[self.position] = [
-                self.positions_options[self.position][0],
-                4,
-                self.positions_options[self.position][2],
-                self.positions_options[self.position][3],
-            ]
-            # altera posição
-            self.old_position = self.position
+            self.change_position_options(1, 4)
             self.position = (self.position[0] + 1, self.position[1])
+            self.change_position_options(3, 4)
 
         elif direction == 'down':
-            # altera options
-            self.positions_options[self.position] = [
-                self.positions_options[self.position][0],
-                self.positions_options[self.position][1],
-                4,
-                self.positions_options[self.position][3],
-            ]
-            # altera posição
-            self.old_position = self.position
+            self.change_position_options(2, 4)
             self.position = (self.position[0], self.position[1] + 1)
+            self.change_position_options(0, 4)
 
         elif direction == 'left':
-            # altera options
-            self.positions_options[self.position] = [
-                self.positions_options[self.position][0],
-                self.positions_options[self.position][1],
-                self.positions_options[self.position][2],
-                4
-            ]
-            # altera posição
-            self.old_position = self.position
+            self.change_position_options(3, 4)
             self.position = (self.position[0] - 1, self.position[1])
+            self.change_position_options(1, 4)
+
+    '''************************************************************************
+    ** The functions below:                                                  **
+    ** go_up()                                                               **
+    ** go_right()                                                            **
+    ** go_down()                                                             **
+    ** go_left()                                                             **
+    ** are part of the dictionary of functions: ABOUT_DIRECTION              **
+    ************************************************************************'''
 
     def go_up(self):
         self.go_direction('up')
@@ -160,6 +187,18 @@ class Mouse:
         self.go_direction('left')
     about_directions = {0: go_up, 1: go_right, 2: go_down, 3: go_left}
 
+    '''************************************************************************
+    **                    END ABOUT_DIRECTION DEFINITION                     **
+    ************************************************************************'''
+
+    '''************************************************************************
+    ** The functions below:                                                  **
+    ** come_back()                                                           **
+    ** safe_choice()                                                         **
+    ** bifurcation()                                                         **
+    ** trifurcation()                                                        **
+    ** are part of the dictionary of functions: ABOUT_CHOICES                **
+    ************************************************************************'''
     def come_back(self):
         # Volta e tira do path
         pass
@@ -175,16 +214,22 @@ class Mouse:
         pass
     about_choices = {0:come_back, 1:safe_choice, 2:bifurcation, 3:trifurcation}
 
+    '''************************************************************************
+    **                   END ABOUT_CHOICES DEFINITION                        **
+    ************************************************************************'''
+
     def exit_next_me(self):
         return 3 in self.positions_options[self.position]
 
     def go(self):
+
         there_is_exit_here = False
-        while not there_is_exit_here:
-            self.positions_options.update({self.position: self.look_arround()})
+        for _ in range(10):
+        #while not there_is_exit_here:
+            #self.positions_options.update({self.position: self.look_arround()})
             if self.exit_next_me():
                 break
 
+            # print('First Position: ', self.positions_options[self.position])
             self.about_choices[self.how_many_choices()](self)
-
-        print('Tudo ok')
+            print('Position: ', self.position, 'Options: ', self.positions_options[self.position], 'Direction: ', self.direction)
