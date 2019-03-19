@@ -9,7 +9,7 @@ class Maze:
         self.turtle.shape(shape)
         self.turtle.color(color)
         self.turtle.pensize(width)
-        self.turtle.speed(0)
+        self.turtle.speed(7)
 
     def set_start(self, tuple_position):
         self.turtle.penup()

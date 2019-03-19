@@ -20,59 +20,27 @@ class Mouse:
         self.direction = 'none'
         self.path = {}
 
-    def prepare_turtle(self, width, color, shape):
+    def prepare_turtle(self, width, color, shape, speed):
         self.donatelo.shape(shape)
         self.donatelo.color(color)
         self.donatelo.pensize(width)
+        self.donatelo.speed(speed)
 
     def set_start(self, tuple_position):
         self.donatelo.penup()
         self.donatelo.setpos(tuple_position)
         self.donatelo.pendown()
 
-    def look_arround(self, position=None):
-        '''
-        This fuction receive one position and return all the options that
-        position, don't matter if is blocked or free.
-        If a position is not received, look_arround treats like you want know
-        the option of actual position.
-
-        :param position:
-        :return:
-        '''
-        if position is None:
-            position = self.position
-
-        return [self.maze.horizontal[position[1]][position[0]],
-                self.maze.vertical[position[0]+1][position[1]],
-                self.maze.horizontal[position[1]+1][position[0]],
-                self.maze.vertical[position[0]][position[1]]]
-
-    def how_many_choices(self):
-        '''
-        This function assists the mouse know how many options it has.
-
-        :return: int(quantity of free spaces that are represented by 0)
-        '''
-        choices = 0
-        for option in self.positions_options.get(self.position):
-            if option == 0:
-                choices += 1
-
-        return choices
-
-    def register_path(self):
-        self.path.update({self.old_position: self.position})
-
     def set_direction(self, new_direction):
-        '''
+        """
         This method prepare the direction where the turtle should move.
         It considers self variable direction and new direction parameter.
         Direction starts with value none and is update by this method.
 
         :param new_direction:
         :return: None
-        '''
+        """
+
         if self.direction == 'none':
             if new_direction == 'up':
                 self.donatelo.left(90)
@@ -166,6 +134,8 @@ class Mouse:
             self.change_position_options(1, 4)
 
     '''************************************************************************
+    **                       ABOUT_DIRECTIONS DEFINITION                     **
+    ***************************************************************************
     ** The functions below:                                                  **
     ** go_up()                                                               **
     ** go_right()                                                            **
@@ -185,13 +155,70 @@ class Mouse:
 
     def go_left(self):
         self.go_direction('left')
-    about_directions = {0: go_up, 1: go_right, 2: go_down, 3: go_left}
+    about_directions = {'up': go_up, 'right': go_right, 'down': go_down,
+                        'left': go_left}
 
     '''************************************************************************
     **                    END ABOUT_DIRECTION DEFINITION                     **
     ************************************************************************'''
 
+    def walk_to_exit(self, directions):
+
+        for direction in directions:
+            self.about_directions[direction](self)
+
+
+
+
     '''************************************************************************
+    **                                                                       **
+    **                      END OF THE USEFULL CODE                          **
+    **                                                                       **
+    ***************************************************************************
+    **     The code below is useless, it was written on my first attempt to  **
+    ** solve the problem.                                                    **
+    ************************************************************************'''
+
+
+    def look_arround(self, position=None):
+        '''
+        This fuction receive one position and return all the options that
+        position, don't matter if is blocked or free.
+        If a position is not received, look_arround treats like you want know
+        the option of actual position.
+
+        :param position:
+        :return:
+        '''
+        if position is None:
+            position = self.position
+
+        return [self.maze.horizontal[position[1]][position[0]],
+                self.maze.vertical[position[0]+1][position[1]],
+                self.maze.horizontal[position[1]+1][position[0]],
+                self.maze.vertical[position[0]][position[1]]]
+
+    def how_many_choices(self):
+        '''
+        This function assists the mouse know how many options it has.
+
+        :return: int(quantity of free spaces that are represented by 0)
+        '''
+        choices = 0
+        for option in self.positions_options.get(self.position):
+            if option == 0:
+                choices += 1
+
+        return choices
+
+    def register_path(self):
+        self.path.update({self.old_position: self.position})
+
+    '''************************************************************************
+    **                                                                       **
+    **                       ABOUT_CHOICES DEFINITION                        **
+    **                                                                       **
+    ***************************************************************************
     ** The functions below:                                                  **
     ** come_back()                                                           **
     ** safe_choice()                                                         **
